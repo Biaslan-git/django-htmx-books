@@ -37,6 +37,15 @@ services:
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_DB=${SQL_DATABASE}
 
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot/ --email django.ppp@gmail.com --agree-tos --no-eff-email -d test.biaslan.pro 
+    depends_on:
+      - nginx
+
   memcached:
     # Берём образ Мemcached версии 1.6.21
     image: memcached:1.6.21
@@ -47,8 +56,12 @@ services:
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - web
 
